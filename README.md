@@ -180,6 +180,8 @@ npm run dev
 
 4. Open the dashboard and click “KIMIで再分析”.
 
+Alternatively, use the API key field at the top of the dashboard. Enter the key and click “接続 / Connect”. The browser sends it to the local server over `/api/config`; the server keeps it in memory only, clears it on restart, and never writes it to the repository or browser storage.
+
 The API key must remain in `.env` or another server-side secret store. Do not paste it into `public/app.js`, commit it to Git, or place it in a browser URL. `.env` is ignored by Git; `.env.example` contains only a placeholder.
 
 ### KIMI request behavior
@@ -311,6 +313,10 @@ Example request:
 ```
 
 The response includes `mode: "demo"` when no API key is configured and `mode: "kimi"` when a valid KIMI response is merged.
+
+### `POST /api/config`
+
+Accepts `{ "apiKey": "..." }` from the dashboard API key field. The key is held in server memory for the current process only. The response reports whether KIMI is configured but never returns the key.
 
 ## Safety and privacy boundaries
 
@@ -516,6 +522,8 @@ npm run dev
 
 4. 案件を選び、「KIMIで再分析」を押します。
 
+画面最上段の「APIキー / API key」欄から入力して「接続 / Connect」を押す方法もあります。キーは`/api/config`経由でローカルサーバーへ送られ、サーバーのメモリ上だけで保持されます。再起動すると消え、リポジトリやブラウザ保存領域には書き込みません。
+
 APIキーはブラウザへ渡さず、必ず`.env`などサーバー側の秘密情報として管理してください。`public/app.js`、URL、README、GitのコミットへAPIキーを書かないでください。`.env`は`.gitignore`で除外され、`.env.example`にはダミー値だけが入っています。
 
 接続先は次の通りです。
@@ -619,6 +627,10 @@ APIキーそのものを返さず、サーバー状態とKIMI設定状態だけ�
 正規化された1件の申込オブジェクトを受け取り、通常処理の分析結果と、利用可能ならKIMIの応答を統合して返します。
 
 APIキー未設定時の`mode`は`demo`、KIMI応答を統合した場合の`mode`は`kimi`です。
+
+### `POST /api/config`
+
+画面上部のAPIキー欄から`{ "apiKey": "..." }`を受け取ります。キーは現在のサーバープロセスのメモリ上だけで保持し、応答には設定状態だけを返します。キーそのものは返しません。
 
 ## 安全性・個人情報の境界
 

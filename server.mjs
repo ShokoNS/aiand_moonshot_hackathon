@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "public");
 const PORT = Number(process.env.PORT || 3000);
+let runtimeApiKey = "";
 
 async function loadDotEnv() {
   try {
@@ -162,7 +163,7 @@ function mergeKimi(base, kimi) {
 
 async function analyze(application) {
   const base = createDeterministicAnalysis(application);
-  const apiKey = process.env.AIAND_API_KEY;
+  const apiKey = runtimeApiKey || process.env.AIAND_API_KEY;
   if (!apiKey || apiKey === "your_aiand_api_key_here") return base;
   const baseUrl = (process.env.AIAND_BASE_URL || "https://api.aiand.com/v1").replace(/\/$/, "");
   const model = process.env.AIAND_MODEL || "moonshotai/kimi-k2.7-code";
@@ -197,6 +198,11 @@ async function readBody(req) {
 
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".csv": "text/csv; charset=utf-8" };
 
+function hasConfiguredApiKey() {
+  const key = runtimeApiKey || process.env.AIAND_API_KEY || "";
+  return Boolean(key && key !== "your_aiand_api_key_here");
+}
+
 async function serveStatic(req, res) {
   const requested = decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
   const safePath = path.normalize(requested === "/" ? "/index.html" : requested);
@@ -214,7 +220,14 @@ async function serveStatic(req, res) {
 await loadDotEnv();
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === "GET" && req.url === "/api/health") return json(res, 200, { ok: true, kimiConfigured: Boolean(process.env.AIAND_API_KEY), model: process.env.AIAND_MODEL || "moonshotai/kimi-k2.7-code" });
+    if (req.method === "GET" && req.url === "/api/health") return json(res, 200, { ok: true, kimiConfigured: hasConfiguredApiKey(), model: process.env.AIAND_MODEL || "moonshotai/kimi-k2.7-code" });
+    if (req.method === "POST" && req.url === "/api/config") {
+      const config = JSON.parse(await readBody(req));
+      const apiKey = String(config.apiKey || "").trim();
+      if (apiKey.length > 500) throw new Error("API key is too long");
+      runtimeApiKey = apiKey;
+      return json(res, 200, { ok: true, kimiConfigured: hasConfiguredApiKey() });
+    }
     if (req.method === "POST" && req.url === "/api/analyze") {
       const application = JSON.parse(await readBody(req));
       const result = await analyze(application);

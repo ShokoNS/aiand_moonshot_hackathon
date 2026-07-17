@@ -31,6 +31,10 @@
 
       <main class="main-content">
         <header class="topbar"><div class="breadcrumbs"><span>SDS運営 / SDS Operations</span><span>/</span><strong>申込み案件 / Applications</strong></div><div class="top-actions"><button class="icon-btn" title="通知 / Notifications">♢<span class="notification-dot"></span></button><button class="help-btn">? ヘルプ / Help</button><button class="primary-btn compact" id="analyzeButton"><span class="sparkle">✦</span> KIMIで再分析 / Re-run with KIMI</button></div></header>
+        <section class="api-key-strip" aria-label="API接続 / API connection">
+          <div class="api-key-copy"><div class="eyebrow coral">AI CONNECTION</div><strong>APIキー / API key</strong><small>ai& inferenceへ安全に接続 / Connect securely to ai& inference</small></div>
+          <div class="api-key-control"><label class="sr-only" for="apiKeyInput">APIキー / API key</label><input id="apiKeyInput" type="password" placeholder="ai& API key" autocomplete="off" spellcheck="false" /><button class="secondary-btn" id="saveApiKey">接続 / Connect</button><span class="api-key-status" id="apiKeyStatus">未接続 / Not connected</span></div>
+        </section>
         <section class="page-heading"><div><div class="eyebrow coral">OPERATIONS INBOX</div><h1>申込み案件 / Event Applications</h1><p>申込みを判断可能な案件に整え、次の対応まで進めます。<br />Turn applications into decision-ready cases and next steps.</p></div><div class="heading-actions"><button class="secondary-btn" id="scenarioButton">条件変更を試す / Simulate change</button><button class="secondary-btn" id="resetButton">デモをリセット / Reset demo</button></div></section>
 
         <section class="kpi-grid" aria-label="案件サマリー / Application summary">
