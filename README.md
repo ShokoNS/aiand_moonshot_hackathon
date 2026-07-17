@@ -80,7 +80,9 @@ AIAND_MODEL=moonshotai/kimi-k2.7-code
 
 Restart the server, open the dashboard, select a case, and click **KIMIで再分析**.
 
-The API key is read only by the Node.js server and is never sent to the browser. Do not place credentials in `public/app.js`, a URL, or a Git commit.
+Alternatively, enter the key in the API key field at the top of the dashboard and click **接続 / Connect**. The browser sends it to the local server through `/api/config`; the server keeps it in memory only and clears it on restart.
+
+The server never returns the API key to the browser or writes it to the repository or browser storage. Do not place credentials in `public/app.js`, a URL, or a Git commit.
 
 ## Demo flow
 
@@ -192,7 +194,9 @@ AIAND_MODEL=moonshotai/kimi-k2.7-code
 
 サーバーを再起動し、案件を選んで **KIMIで再分析** を押してください。
 
-APIキーはNode.jsサーバーだけが読み取り、ブラウザには渡しません。`public/app.js`、URL、README、Gitのコミットには認証情報を記載しないでください。
+画面上部のAPIキー欄へ入力し、**接続 / Connect** を押す方法もあります。キーは`/api/config`経由でローカルサーバーへ送られ、サーバーのメモリ上だけで保持されます。サーバーを再起動すると消去されます。
+
+サーバーはAPIキーをブラウザへ返さず、リポジトリやブラウザ保存領域にも書き込みません。`public/app.js`、URL、README、Gitのコミットには認証情報を記載しないでください。
 
 ### デモ手順
 

@@ -68,6 +68,46 @@ const formatDate = (value) => {
 };
 const toast = (message) => { const el = $("#toast"); el.textContent = message; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2800); };
 
+async function refreshApiKeyStatus() {
+  try {
+    const response = await fetch("/api/health");
+    const payload = await response.json();
+    const status = $("#apiKeyStatus");
+    if (payload.kimiConfigured) {
+      status.textContent = "接続済み / Connected";
+      status.classList.add("connected");
+    }
+  } catch {
+    // The dashboard can still run in demo mode when the health check is unavailable.
+  }
+}
+
+async function connectApiKey() {
+  const input = $("#apiKeyInput");
+  const button = $("#saveApiKey");
+  const status = $("#apiKeyStatus");
+  const apiKey = input.value.trim();
+  if (!apiKey) return toast("APIキーを入力してください / Enter an API key");
+  button.classList.add("loading");
+  button.textContent = "接続中 / Connecting…";
+  try {
+    const response = await fetch("/api/config", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ apiKey }) });
+    const payload = await response.json();
+    if (!response.ok || !payload.kimiConfigured) throw new Error(payload.error || "API key was not accepted");
+    input.value = "";
+    status.textContent = "接続済み / Connected";
+    status.classList.add("connected");
+    toast("KIMI接続を設定しました / KIMI connection configured");
+  } catch (error) {
+    status.textContent = "接続失敗 / Connection failed";
+    status.classList.remove("connected");
+    toast(`${error.message} / Connection failed`);
+  } finally {
+    button.classList.remove("loading");
+    button.textContent = "接続 / Connect";
+  }
+}
+
 function demoAnalysis() {
   const app = state.application || DEMO_APPLICATION;
   const area = String(app.deeptechArea || "").split(" / ")[0];
@@ -250,9 +290,11 @@ async function loadBundledDemoData() {
 }
 
 $("#analyzeButton").addEventListener("click", runAnalysis);
+$("#saveApiKey").addEventListener("click", connectApiKey);
 $("#scenarioButton").addEventListener("click", () => { state.scenario = !state.scenario; toast(state.scenario ? "第1希望日を利用困難に変更しました / First requested date is now unavailable" : "通常の希望条件に戻しました / Restored normal conditions"); state.analysis = demoAnalysis(); render(); });
 $("#resetButton").addEventListener("click", () => { state.application = structuredClone(DEMO_APPLICATION); state.scenario = false; state.analysis = demoAnalysis(); render(); toast("デモ案件をリセットしました / Demo case reset"); });
 $("#importCsv").addEventListener("click", () => $("#csvInput").click());
 $("#csvInput").addEventListener("change", async (event) => { const file = event.target.files?.[0]; if (!file) return; const rows = parseCsv(await file.text()); if (!rows.length) return toast("CSVにデータ行がありません / No data rows found in CSV"); CASES = buildCsvCases(rows); state.application = structuredClone(CASES[0].application); state.activeCase = CASES[0].id; state.scenario = false; state.analysis = demoAnalysis(); render(); toast(`${rows.length}件の申込案件を読み込みました / Loaded ${rows.length} applications`); });
 state.analysis = demoAnalysis(); render();
 loadBundledDemoData();
+refreshApiKeyStatus();
