@@ -66,6 +66,7 @@ SDS operator review and approval
 - Shows the selected event, applicant company, application ID, requested dates, and scale.
 - Shows completion rate, fit score, missing questions, candidate dates, member/partner suggestions, tasks, and a reply draft.
 - Includes operator actions to request more information, advance to a planning meeting, and copy the reply draft.
+- Primary navigation, KPI labels, actions, statuses, and analysis section headings are displayed in Japanese and English side by side.
 
 ### Demo dataset
 
@@ -433,6 +434,7 @@ SDS Event Producer Agentは、イベント申込みを、SDS運営担当者が�
 - 案件タイトル、企業名、申込ID、希望日、人数を確認できます。
 - 情報充足率、SDS適合性、候補日、追加質問、会員候補、タスク、返信案を表示します。
 - 「追加情報を依頼」「企画面談へ進める」「返信案をコピー」の操作を用意しています。
+- 主要ナビ、KPI、操作ボタン、ステータス、分析セクションの見出しは、日本語と英語を併記しています。
 
 ### デモCSV
 

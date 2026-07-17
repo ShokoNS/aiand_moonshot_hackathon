@@ -13,35 +13,35 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand"><span class="brand-mark">S</span><span>SDS <b>Producer</b></span></div>
-        <div class="workspace-switcher"><span class="pulse-dot"></span><span>運営ワークスペース</span><span class="chevron">⌄</span></div>
-        <nav class="main-nav" aria-label="メインナビゲーション">
-          <button class="nav-item active"><span>▦</span>申込み案件<span class="nav-count" id="queueCount">50</span></button>
-          <button class="nav-item"><span>◌</span>候補日カレンダー</button>
-          <button class="nav-item"><span>♧</span>会員マッチング</button>
-          <button class="nav-item"><span>✓</span>運営タスク<span class="nav-count amber">7</span></button>
+        <div class="workspace-switcher"><span class="pulse-dot"></span><span>運営ワークスペース / Operations Workspace</span><span class="chevron">⌄</span></div>
+        <nav class="main-nav" aria-label="メインナビゲーション / Main navigation">
+          <button class="nav-item active"><span>▦</span>申込み案件 / Applications<span class="nav-count" id="queueCount">50</span></button>
+          <button class="nav-item"><span>◌</span>候補日カレンダー / Candidate Calendar</button>
+          <button class="nav-item"><span>♧</span>会員マッチング / Member Matching</button>
+          <button class="nav-item"><span>✓</span>運営タスク / Operations Tasks<span class="nav-count amber">7</span></button>
         </nav>
-        <div class="sidebar-section-label">データ</div>
-        <button class="nav-item" id="importCsv"><span>↥</span>CSVを取り込む</button>
+        <div class="sidebar-section-label">データ / DATA</div>
+        <button class="nav-item" id="importCsv"><span>↥</span>CSVを取り込む / Import CSV</button>
         <input id="csvInput" type="file" accept=".csv,text/csv" hidden />
         <div class="sidebar-bottom">
-          <div class="kimi-card"><div class="kimi-orb">✦</div><div><div class="eyebrow">AI ENGINE</div><strong>KIMI 2.7</strong><small>分析補助が有効</small></div><span class="online-dot"></span></div>
-          <div class="user-row"><span class="avatar">YU</span><div><strong>Yusuke</strong><small>運営担当</small></div><span class="more">•••</span></div>
+          <div class="kimi-card"><div class="kimi-orb">✦</div><div><div class="eyebrow">AI ENGINE</div><strong>KIMI 2.7</strong><small>分析補助が有効 / Analysis ready</small></div><span class="online-dot"></span></div>
+          <div class="user-row"><span class="avatar">YU</span><div><strong>Yusuke</strong><small>運営担当 / Operator</small></div><span class="more">•••</span></div>
         </div>
       </aside>
 
       <main class="main-content">
-        <header class="topbar"><div class="breadcrumbs"><span>SDS運営</span><span>/</span><strong>申込み案件</strong></div><div class="top-actions"><button class="icon-btn" title="通知">♢<span class="notification-dot"></span></button><button class="help-btn">? ヘルプ</button><button class="primary-btn compact" id="analyzeButton"><span class="sparkle">✦</span> KIMIで再分析</button></div></header>
-        <section class="page-heading"><div><div class="eyebrow coral">OPERATIONS INBOX</div><h1>申込み案件</h1><p>申込みを判断可能な案件に整え、次の対応まで進めます。</p></div><div class="heading-actions"><button class="secondary-btn" id="scenarioButton">条件変更を試す</button><button class="secondary-btn" id="resetButton">デモをリセット</button></div></section>
+        <header class="topbar"><div class="breadcrumbs"><span>SDS運営 / SDS Operations</span><span>/</span><strong>申込み案件 / Applications</strong></div><div class="top-actions"><button class="icon-btn" title="通知 / Notifications">♢<span class="notification-dot"></span></button><button class="help-btn">? ヘルプ / Help</button><button class="primary-btn compact" id="analyzeButton"><span class="sparkle">✦</span> KIMIで再分析 / Re-run with KIMI</button></div></header>
+        <section class="page-heading"><div><div class="eyebrow coral">OPERATIONS INBOX</div><h1>申込み案件 / Event Applications</h1><p>申込みを判断可能な案件に整え、次の対応まで進めます。<br />Turn applications into decision-ready cases and next steps.</p></div><div class="heading-actions"><button class="secondary-btn" id="scenarioButton">条件変更を試す / Simulate change</button><button class="secondary-btn" id="resetButton">デモをリセット / Reset demo</button></div></section>
 
-        <section class="kpi-grid" aria-label="案件サマリー">
-          <article class="kpi-card"><div class="kpi-label">未処理案件</div><div class="kpi-value" id="unprocessedKpi">50<span class="kpi-unit">件</span></div><div class="kpi-trend up">↗ 3件 今週</div></article>
-          <article class="kpi-card accent"><div class="kpi-label">初回情報充足率</div><div class="kpi-value" id="completionKpi">92<span class="kpi-unit">%</span></div><div class="kpi-trend up">↗ 8pt 前月比</div></article>
-          <article class="kpi-card"><div class="kpi-label">平均初回返信</div><div class="kpi-value">1.8<span class="kpi-unit">h</span></div><div class="kpi-trend neutral">目標 4h以内</div></article>
-          <article class="kpi-card"><div class="kpi-label">今週の企画面談</div><div class="kpi-value">08<span class="kpi-unit">件</span></div><div class="kpi-trend amber">要確認 2件</div></article>
+        <section class="kpi-grid" aria-label="案件サマリー / Application summary">
+          <article class="kpi-card"><div class="kpi-label">未処理案件 / Unprocessed applications</div><div class="kpi-value" id="unprocessedKpi">50<span class="kpi-unit">件 / cases</span></div><div class="kpi-trend up">↗ 3件 / cases this week</div></article>
+          <article class="kpi-card accent"><div class="kpi-label">初回情報充足率 / Initial completeness</div><div class="kpi-value" id="completionKpi">92<span class="kpi-unit">%</span></div><div class="kpi-trend up">↗ 8pt 前月比 / vs last month</div></article>
+          <article class="kpi-card"><div class="kpi-label">平均初回返信 / Avg. first reply</div><div class="kpi-value">1.8<span class="kpi-unit">h</span></div><div class="kpi-trend neutral">目標 4h以内 / target &lt;4h</div></article>
+          <article class="kpi-card"><div class="kpi-label">今週の企画面談 / Planning meetings this week</div><div class="kpi-value">08<span class="kpi-unit">件 / cases</span></div><div class="kpi-trend amber">要確認 2件 / review</div></article>
         </section>
 
         <section class="workspace-grid">
-          <div class="case-list card"><div class="card-header"><div><h2>申込みキュー</h2><span class="muted" id="caseCount">50件の案件</span></div><button class="filter-btn">すべて⌄</button></div><div class="case-list-items" id="caseList"></div></div>
+          <div class="case-list card"><div class="card-header"><div><h2>申込みキュー / Application queue</h2><span class="muted" id="caseCount">50件 / cases</span></div><button class="filter-btn">すべて / All⌄</button></div><div class="case-list-items" id="caseList"></div></div>
           <div class="case-detail" id="caseDetail"></div>
         </section>
         <div class="toast" id="toast" role="status"></div>
