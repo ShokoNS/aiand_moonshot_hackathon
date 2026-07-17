@@ -8,6 +8,70 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .recommend-card {
+        margin-top: 14px;
+        padding: 20px 22px;
+        background: linear-gradient(135deg, #252d42, #364057);
+        box-shadow: 0 14px 30px rgba(32, 38, 55, .12);
+      }
+      .recommendation-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 17px;
+      }
+      .recommendation-head h3 { margin-top: 5px; font-size: 15px; color: #fff; }
+      .recommendation-eyebrow { display: block; color: #aeb8cb; font-size: 9px; letter-spacing: .14em; font-weight: 700; }
+      .recommendation-badge { padding: 6px 9px; border-radius: 99px; background: #4b556b; color: #edf0f8; font-size: 9px; white-space: nowrap; }
+      .recommendation-badge.kimi { background: #c9f1e1; color: #176c54; font-weight: 700; }
+      .recommendation-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
+      .recommendation-summary > span, .recommendation-label { display: block; color: #aeb8cb; font-size: 9px; letter-spacing: .08em; margin-bottom: 7px; }
+      .recommendation-summary strong { display: block; color: #fff; font-size: 18px; line-height: 1.4; }
+      .recommendation-summary p { max-width: 650px; color: #cbd2df; font-size: 11px; line-height: 1.7; margin: 7px 0 0; }
+      .recommendation-stats { display: flex; gap: 10px; }
+      .recommendation-stats > div { min-width: 74px; padding: 9px 10px; border: 1px solid #4b566b; border-radius: 8px; text-align: center; background: #2e374d; }
+      .recommendation-stats strong { display: block; color: #fff; font-family: "DM Sans", "Noto Sans JP", sans-serif; font-size: 20px; line-height: 1; }
+      .recommendation-stats span { display: block; color: #aeb8cb; font-size: 9px; margin-top: 5px; white-space: nowrap; }
+      .recommendation-next { margin-top: 18px; padding-top: 15px; border-top: 1px solid #4a556a; }
+      .recommendation-task-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+      .recommendation-task { display: flex; align-items: flex-start; gap: 9px; padding: 10px; background: #303a50; border-radius: 8px; }
+      .task-number { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--coral); color: #fff; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+      .recommendation-task strong { display: block; color: #fff; font-size: 10px; line-height: 1.4; }
+      .recommendation-task small { display: block; color: #aeb8cb; font-size: 9px; margin-top: 4px; }
+      .recommendation-empty { color: #cbd2df; font-size: 10px; }
+      .reply-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .reply-language { min-width: 0; }
+      .reply-language-label { margin: 0 0 7px; color: #737d92; font-size: 10px; font-weight: 700; }
+      .reply-language .reply-box { min-height: 170px; }
+      .bottom-action-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 16px;
+        padding: 16px 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(32, 38, 55, .04);
+      }
+      .bottom-action-bar strong { display: block; margin-top: 4px; color: #454e60; font-size: 12px; }
+      .bottom-action-bar small { display: block; margin-top: 4px; color: #8991a0; font-size: 10px; line-height: 1.5; }
+      .bottom-action-bar .primary-btn { flex-shrink: 0; padding: 12px 16px; }
+      @media (max-width: 800px) {
+        .recommend-card { padding: 17px; }
+        .recommendation-head { flex-direction: column; }
+        .recommendation-main { grid-template-columns: 1fr; gap: 15px; }
+        .recommendation-stats { width: 100%; }
+        .recommendation-stats > div { flex: 1; min-width: 0; }
+        .recommendation-task-list { grid-template-columns: 1fr; }
+        .reply-pair { grid-template-columns: 1fr; }
+        .bottom-action-bar { align-items: stretch; flex-direction: column; }
+        .bottom-action-bar .primary-btn { width: 100%; }
+      }
+    </style>
   </head>
   <body>
     <div class="app-shell">
@@ -30,7 +94,7 @@
       </aside>
 
       <main class="main-content">
-        <header class="topbar"><div class="breadcrumbs"><span>SDS運営 / SDS Operations</span><span>/</span><strong>申込み案件 / Applications</strong></div><div class="top-actions"><button class="icon-btn" title="通知 / Notifications">♢<span class="notification-dot"></span></button><button class="help-btn">? ヘルプ / Help</button><button class="primary-btn compact" id="analyzeButton"><span class="sparkle">✦</span> KIMIで再分析 / Re-run with KIMI</button></div></header>
+        <header class="topbar"><div class="breadcrumbs"><span>SDS運営 / SDS Operations</span><span>/</span><strong>申込み案件 / Applications</strong></div><div class="top-actions"><button class="icon-btn" title="通知 / Notifications">♢<span class="notification-dot"></span></button><button class="help-btn">? ヘルプ / Help</button></div></header>
         <section class="api-key-strip" aria-label="API接続 / API connection">
           <div class="api-key-copy"><div class="eyebrow coral">AI CONNECTION</div><strong>APIキー / API key</strong><small>ai& inferenceへ安全に接続 / Connect securely to ai& inference</small></div>
           <div class="api-key-control"><label class="sr-only" for="apiKeyInput">APIキー / API key</label><input id="apiKeyInput" type="password" placeholder="ai& API key" autocomplete="off" spellcheck="false" /><button class="secondary-btn" id="saveApiKey">接続 / Connect</button><span class="api-key-status" id="apiKeyStatus">未接続 / Not connected</span></div>
@@ -47,6 +111,10 @@
         <section class="workspace-grid">
           <div class="case-list card"><div class="card-header"><div><h2>申込みキュー / Application queue</h2><span class="muted" id="caseCount">50件 / cases</span></div><button class="filter-btn">すべて / All⌄</button></div><div class="case-list-items" id="caseList"></div></div>
           <div class="case-detail" id="caseDetail"></div>
+        </section>
+        <section class="bottom-action-bar" aria-label="KIMI再分析 / KIMI re-analysis">
+          <div><div class="eyebrow coral">AI REVIEW</div><strong>案件内容を確認したら、KIMIに再分析を依頼 / Re-analyze this case with KIMI</strong><small>返信案や追加質問を含む提案内容を更新します。 / Refresh recommendations including the reply draft and follow-up questions.</small></div>
+          <button class="primary-btn" id="analyzeButton"><span class="sparkle">✦</span> KIMIで再分析 / Re-run with KIMI</button>
         </section>
         <div class="toast" id="toast" role="status"></div>
       </main>

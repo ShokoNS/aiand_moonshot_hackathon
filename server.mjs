@@ -1,4 +1,5 @@
 import http from "node:http";
+import https from "node:https";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +8,51 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "public");
 const PORT = Number(process.env.PORT || 3000);
 let runtimeApiKey = "";
+let systemCaPromise;
+
+async function loadSystemCa() {
+  if (!systemCaPromise) {
+    systemCaPromise = (async () => {
+      const candidates = [
+        process.env.NODE_EXTRA_CA_CERTS,
+        "/etc/ssl/cert.pem",
+        "/etc/ssl/certs/ca-certificates.crt",
+      ].filter(Boolean);
+      for (const candidate of candidates) {
+        try {
+          return await fs.readFile(candidate);
+        } catch {
+          // Try the next platform-specific certificate bundle.
+        }
+      }
+      return undefined;
+    })();
+  }
+  return systemCaPromise;
+}
+
+async function postJson(url, body, headers) {
+  const target = new URL(url);
+  const transport = target.protocol === "https:" ? https : http;
+  const ca = target.protocol === "https:" ? await loadSystemCa() : undefined;
+
+  return new Promise((resolve, reject) => {
+    const request = transport.request(target, {
+      method: "POST",
+      headers,
+      ...(ca ? { ca } : {}),
+    }, (response) => {
+      const chunks = [];
+      response.on("data", (chunk) => chunks.push(chunk));
+      response.on("end", () => resolve({
+        status: response.statusCode || 0,
+        body: Buffer.concat(chunks).toString("utf8"),
+      }));
+    });
+    request.on("error", reject);
+    request.end(body);
+  });
+}
 
 async function loadDotEnv() {
   try {
@@ -95,6 +141,10 @@ function createDeterministicAnalysis(application) {
   if (!application.setupTime) missingQuestions.push("会場準備・撤去に必要な時間を教えてください。");
   if (!application.sdsSupport) missingQuestions.push("共同開催において、SDSへ希望する支援を選択してください。");
   if (!application.alcohol) missingQuestions.push("飲食提供がある場合、アルコール提供の有無を教えてください。");
+  const missingQuestionsEn = [];
+  if (!application.setupTime) missingQuestionsEn.push("Please tell us the time required for setup and teardown.");
+  if (!application.sdsSupport) missingQuestionsEn.push("Please select the support you would like SDS to provide for the co-hosted event.");
+  if (!application.alcohol) missingQuestionsEn.push("If food or beverages will be served, please confirm whether alcohol will be provided.");
   const candidates = candidateDates(application);
   const capacity = Number(application.attendeeCount || 0);
   const facility = capacity > 120 ? "人数が標準スペース上限を超えるため、会場分割または規模調整が必要" : "人数は標準スペースの想定範囲内";
@@ -131,11 +181,12 @@ function createDeterministicAnalysis(application) {
       { title: "小規模案", detail: "50名以下に抑え、別スペースも検討する" },
     ],
     replyDraft: `お申込みありがとうございます。\n\nご希望内容を確認し、現時点では${candidates.filter((item) => item.available).map((item) => item.date).join("、")}が候補となります。\n\n${missingQuestions.length ? `検討にあたり、以下をご確認ください。\n・${missingQuestions.join("\n・")}\n\n` : ""}最終的な日程と開催条件は、運営確認後にご案内します。`,
+    replyDraftEn: `Thank you for your application.\n\nBased on the details received, ${candidates.filter((item) => item.available).map((item) => item.date).join(" or ")} are currently available candidate dates.\n\n${missingQuestionsEn.length ? `To proceed, please confirm the following:\n- ${missingQuestionsEn.join("\n- ")}\n\n` : ""}We will follow up with the final date and event conditions after our internal review.`,
   };
 }
 
 function buildKimiPrompt(application, base) {
-  return `あなたはSDS運営の補助エージェントです。採否、予約確定、会員への直接連絡は決めず、運営担当者が確認できる判断材料だけを日本語で整理してください。以下の申込みを分析し、必ずJSONオブジェクトだけを返してください。\n\n申込データ:\n${JSON.stringify(application, null, 2)}\n\n通常処理で検出済みの事実:\n${JSON.stringify({ completion: base.completion, candidates: base.candidates, facility: base.facility, memberMatches: base.memberMatches }, null, 2)}\n\nJSONのキーは fitSummary(string), additionalQuestions(string[]), alternativePlans(array of {title,detail}), memberMatches(array of {label,role,reason}), tasks(array of {label,owner,priority}), recommendedAction(string), recommendedReason(string), replyDraft(string)。会員の氏名や連絡先など非公開情報は出さず、候補は匿名ラベルだけにしてください。`;
+  return `あなたはSDS運営の補助エージェントです。採否、予約確定、会員への直接連絡は決めず、運営担当者が確認できる判断材料だけを整理してください。以下の申込みを分析し、必ずJSONオブジェクトだけを返してください。判断材料と各項目は日本語で、返信案は日本語版と英語版の両方を作成してください。\n\n申込データ:\n${JSON.stringify(application, null, 2)}\n\n通常処理で検出済みの事実:\n${JSON.stringify({ completion: base.completion, candidates: base.candidates, facility: base.facility, memberMatches: base.memberMatches }, null, 2)}\n\nJSONのキーは fitSummary(string), additionalQuestions(string[]), alternativePlans(array of {title,detail}), memberMatches(array of {label,role,reason}), tasks(array of {label,owner,priority}), recommendedAction(string), recommendedReason(string), replyDraft(string), replyDraftEn(string)。replyDraftEnは申込者へそのまま送れる自然な英語にしてください。会員の氏名や連絡先など非公開情報は出さず、候補は匿名ラベルだけにしてください。`;
 }
 
 function extractJson(text) {
@@ -158,6 +209,7 @@ function mergeKimi(base, kimi) {
     recommendedAction: kimi.recommendedAction || base.recommendedAction,
     recommendedReason: kimi.recommendedReason || base.recommendedReason,
     replyDraft: kimi.replyDraft || base.replyDraft,
+    replyDraftEn: kimi.replyDraftEn || base.replyDraftEn,
   };
 }
 
@@ -167,20 +219,35 @@ async function analyze(application) {
   if (!apiKey || apiKey === "your_aiand_api_key_here") return base;
   const baseUrl = (process.env.AIAND_BASE_URL || "https://api.aiand.com/v1").replace(/\/$/, "");
   const model = process.env.AIAND_MODEL || "moonshotai/kimi-k2.7-code";
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: "You are a careful operations analyst. Return valid JSON only." },
-        { role: "user", content: buildKimiPrompt(application, base) },
-      ],
-    }),
+  const requestBody = JSON.stringify({
+    model,
+    temperature: 0.2,
+    messages: [
+      { role: "system", content: "You are a careful operations analyst. Return valid JSON only." },
+      { role: "user", content: buildKimiPrompt(application, base) },
+    ],
   });
-  if (!response.ok) throw new Error(`KIMI API error: ${response.status}`);
-  const payload = await response.json();
+  const response = await postJson(`${baseUrl}/chat/completions`, requestBody, {
+    authorization: `Bearer ${apiKey}`,
+    "content-type": "application/json",
+    "content-length": Buffer.byteLength(requestBody),
+  });
+  if (response.status < 200 || response.status >= 300) {
+    let detail = "";
+    try {
+      const errorPayload = JSON.parse(response.body);
+      detail = errorPayload?.error?.message || errorPayload?.message || "";
+    } catch {
+      // Keep the public error concise when the upstream response is not JSON.
+    }
+    throw new Error(`KIMI API error: ${response.status}${detail ? ` (${String(detail).slice(0, 240)})` : ""}`);
+  }
+  let payload;
+  try {
+    payload = JSON.parse(response.body);
+  } catch {
+    throw new Error("KIMI response was not valid JSON");
+  }
   const content = payload?.choices?.[0]?.message?.content;
   return mergeKimi(base, extractJson(content));
 }
